@@ -321,7 +321,7 @@ class Variant ():
                         if sub_pop["name"] in population_frequency_map[csq_record_list[allele_index]]:
                             continue
                         allele_count = allele_number = allele_frequency = None
-                        for freq_key, freq_val in sub_pop["frequencies"].items():
+                        for freq_key, freq_val in sub_pop["fields"].items():
                             col_index = self.get_info_key_index(freq_val)
                             if col_index and csq_record_list[col_index] is not None:
                                 if freq_key == "af":
