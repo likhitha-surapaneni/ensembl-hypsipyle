@@ -59,6 +59,9 @@ for species_name, species in data.items():
         population_frequencies[pop_freq_name] = []
           # For mouse, file list (for SNP and indels), output fields are the same
         for sub_population in population_source["files"][0]["include_fields"]:
+            prefix=population_source['files'][0]['short_name']
+            for field_key,field_val in sub_population['fields'].items():
+                sub_population['fields'][field_key]=f"{prefix}_{field_val}"
             population_frequencies[pop_freq_name].append(sub_population)
     
         genome_uuids = get_genome_uuids(server,species_name)
