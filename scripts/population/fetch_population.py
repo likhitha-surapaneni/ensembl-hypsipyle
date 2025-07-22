@@ -58,18 +58,16 @@ for species_name, species in data.items():
         pop_freq_name = population_source['name']
         population_frequencies[pop_freq_name] = []
         # For mouse, file list (for SNP and indels), output fields are per files
-        population_fields = []
-        for p in population_source["files"]:
-            population_fields.extend(p["include_fields"])
-        for sub_population in population_fields:
-            prefix=population_source['files'][0]['short_name']
-            for field_key,field_val in sub_population['fields'].items():
-                sub_population['fields'][field_key]=f"{prefix}_{field_val}"
-            population_frequencies[pop_freq_name].append(sub_population)
+        for population_file in population_source["files"]:
+            prefix=population_file["short_name"]
+            for sub_population in population_file["include_fields"]:
+                for field_key,field_val in sub_population['fields'].items():
+                    sub_population['fields'][field_key]=f"{prefix}_{field_val}"
+                population_frequencies[pop_freq_name].append(sub_population)
     
         genome_uuids = get_genome_uuids(server,species_name)
         for genome_uuid in genome_uuids:
-            population_map[genome_uuid] = population_frequencies
+            population_map[genome_uuid] = population_frequencies 
 
 # Write population-data.json
 with open('test-data.json', 'w') as file:
