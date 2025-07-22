@@ -57,8 +57,11 @@ for species_name, species in data.items():
     for population_source in species:
         pop_freq_name = population_source['name']
         population_frequencies[pop_freq_name] = []
-          # For mouse, file list (for SNP and indels), output fields are the same
-        for sub_population in population_source["files"][0]["include_fields"]:
+        # For mouse, file list (for SNP and indels), output fields are per files
+        population_fields = []
+        for p in population_source["files"]:
+            population_fields.extend(p["include_fields"])
+        for sub_population in population_fields:
             prefix=population_source['files'][0]['short_name']
             for field_key,field_val in sub_population['fields'].items():
                 sub_population['fields'][field_key]=f"{prefix}_{field_val}"
