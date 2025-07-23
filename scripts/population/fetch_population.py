@@ -55,16 +55,30 @@ population_map = {}
 for species_name, species in data.items():
     population_frequencies = {}
     for population_source in species:
-        pop_freq_name = population_source['name']
-        population_frequencies[pop_freq_name] = []
-        # For mouse, file list (for SNP and indels), output fields are per files
-        for population_file in population_source["files"]:
-            prefix=population_file["short_name"]
-            for sub_population in population_file["include_fields"]:
-                for field_key,field_val in sub_population['fields'].items():
-                    sub_population['fields'][field_key]=f"{prefix}_{field_val}"
-                population_frequencies[pop_freq_name].append(sub_population)
-    
+
+        if population_source["name"] != "UNSPECIFIED": 
+            pop_freq_name = population_source['name']
+            population_frequencies[pop_freq_name] = []
+            # For mouse, file list (for SNP and indels), output fields are per files
+            for population_file in population_source["files"]:
+                prefix=population_file["short_name"]
+                for sub_population in population_file["include_fields"]:
+                    for field_key,field_val in sub_population['fields'].items():
+                        sub_population['fields'][field_key]=f"{prefix}_{field_val}" 
+                    population_frequencies[pop_freq_name].append(sub_population)
+        else:
+             for population_file in population_source["files"]:
+                for sub_population in population_file["include_fields"]:
+                    print(sub_population)
+                    for field_key,field_val in sub_population['fields'].items():
+                        sub_population['fields'][field_key]=field_val
+                        if sub_population["name"] in population_frequencies: 
+                            if population_frequencies[sub_population["name"]] != sub_population:
+                                print(f"Conflicting fields for {sub_population['name']}")
+                            continue
+                        else:
+                            population_frequencies[sub_population["name"]]=sub_population
+
         genome_uuids = get_genome_uuids(server,species_name)
         for genome_uuid in genome_uuids:
             population_map[genome_uuid] = population_frequencies 
