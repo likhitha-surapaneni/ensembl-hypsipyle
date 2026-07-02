@@ -33,8 +33,10 @@ def minimise_allele(alt: str, ref: str) -> str:
     return minimised_allele_string
 
 
-def minimise_protein_sequence(ref: str, alt: str, start: int, end: int, length: int) -> tuple[str, str, int, int, int]:
-    """Minimise a protein sequence change 
+def minimise_protein_sequence(
+    ref: str, alt: str, start: int, end: int, length: int
+) -> tuple[str, str, int, int, int]:
+    """Minimise a protein sequence change
 
     Args:
         ref (str): The reference amino acid sequence.
@@ -48,18 +50,30 @@ def minimise_protein_sequence(ref: str, alt: str, start: int, end: int, length: 
     """
 
     # handling only protein deletion as this can be ambiguous in UI
-    if len(ref)<=len(alt) or ref=="-" or alt=="-":
-        return (ref,alt,start,end,length) 
-    i=0
-    min_length = min(len(ref),len(alt))
-    while i<min_length and ref[i]==alt[i]:
-        i+=1
-        start = int(start)+1
-        length=length-1
+    if len(ref) <= len(alt) or ref == "-" or alt == "-":
+        return (ref, alt, start, end, length)
 
-    min_ref = ref[i:] or "-"
-    min_alt = alt[i:] or "-"
-    return (min_ref, min_alt, start, end,length)
+    prefix_length = 0
+    while prefix_length < len(alt) and ref[prefix_length] == alt[prefix_length]:
+        prefix_length += 1
+
+    min_ref = ref[prefix_length:]
+    min_alt = alt[prefix_length:]
+
+    suffix_length = 0
+    while min_ref and min_alt and min_ref[-1] == min_alt[-1]:
+        suffix_length += 1
+        min_ref = min_ref[:-1]
+        min_alt = min_alt[:-1]
+
+    if prefix_length or suffix_length:
+        start = int(start) + prefix_length
+        end = int(end) - suffix_length
+        length = length - prefix_length - suffix_length
+
+    min_ref = min_ref or "-"
+    min_alt = min_alt or "-"
+    return (min_ref, min_alt, start, end, length)
 
 
 def decode_population_name(name: str):
