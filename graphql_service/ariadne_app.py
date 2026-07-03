@@ -28,6 +28,10 @@ from graphql_service.resolver.structural_variant_model import (
     STRUCTURAL_VARIANT_TYPE,
     STRUCTURAL_VARIANT_ALLELE_TYPE,
 )
+from graphql_service.resolver.population_model import (
+    QUERY_TYPE as POPULATION_QUERY_TYPE,
+    POPULATION_TYPE,
+)
 
 
 def prepare_executable_schema() -> GraphQLSchema:
@@ -44,8 +48,10 @@ def prepare_executable_schema() -> GraphQLSchema:
         schema,
         QUERY_TYPE,
         STRUCTURAL_QUERY_TYPE,
+        POPULATION_QUERY_TYPE,
         VARIANT_TYPE,
         VARIANT_ALLELE_TYPE,
+        POPULATION_TYPE,
         STRUCTURAL_VARIANT_TYPE,
         STRUCTURAL_VARIANT_ALLELE_TYPE,
     )

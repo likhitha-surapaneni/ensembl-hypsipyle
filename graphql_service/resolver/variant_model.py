@@ -12,21 +12,18 @@
    limitations under the License.
 """
 
-from typing import Dict, List
-import json
-import os
+from typing import Dict
 from ariadne import QueryType, ObjectType
 from graphql import GraphQLResolveInfo
 
 from graphql_service.resolver.exceptions import VariantNotFoundError
 
 # Define Query types for GraphQL
-# Don't forget to import these into ariadne_app.py if you add a new type
+# Don't forget to import these into ariadne_app.py if you add a new type that use schema
 
 QUERY_TYPE = QueryType()
 VARIANT_TYPE = ObjectType("Variant")
 VARIANT_ALLELE_TYPE = ObjectType("VariantAllele")
-POPULATION_TYPE = ObjectType("Population")
 
 
 @QUERY_TYPE.field("variant")
@@ -211,15 +208,3 @@ def resolve_api(
 ) -> Dict:  # the second argument must be named `info` to avoid a NameError
     return {"api": {"major": "0", "minor": "1", "patch": "0-beta"}}
 
-
-@QUERY_TYPE.field("populations")
-def resolve_populations(
-    _: None, info: GraphQLResolveInfo, genome_id: str = None
-) -> List:
-    current_directory = os.path.dirname(__file__)
-    population_metadata_file = (
-        f"{current_directory}/../../common/file_model/population_metadata.json"
-    )
-    with open(population_metadata_file) as pop_file:
-        population_metadata = json.load(pop_file)
-    return population_metadata.get(genome_id, [])
