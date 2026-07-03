@@ -78,25 +78,25 @@ def slice(structural_variant: Dict, info: GraphQLResolveInfo) -> Dict:
 
 
 @STRUCTURAL_VARIANT_TYPE.field("prediction_results")
-def prediction_results(variant: Dict, info: GraphQLResolveInfo) -> Dict:
+def prediction_results(structural_variant: Dict, info: GraphQLResolveInfo) -> Dict:
     """
     Load prediction result for variant
     """
     prediction_results = []
-    prediction_results.append(variant.get_most_severe_consequence())
-    if variant.get_gerp_score():
-        prediction_results.append(variant.get_gerp_score())
-    if variant.get_ancestral_allele():
-        prediction_results.append(variant.get_ancestral_allele())
+    prediction_results.append(structural_variant.get_most_severe_consequence())
+    if structural_variant.get_gerp_score():
+        prediction_results.append(structural_variant.get_gerp_score())
+    if structural_variant.get_ancestral_allele():
+        prediction_results.append(structural_variant.get_ancestral_allele())
     return prediction_results
 
 
 # @STRUCTURAL_VARIANT_TYPE.field("ensembl_website_display_data")
-# def ensembl_website_display_data(variant: Dict, info: GraphQLResolveInfo) -> Dict:
+# def ensembl_website_display_data(structural_variant: Dict, info: GraphQLResolveInfo) -> Dict:
 #     """
 #     Load ensembl website display data for variant
 #     """
-#     return variant.get_web_display_data()
+#     return structural_variant.get_web_display_data()
 
 
 @STRUCTURAL_VARIANT_TYPE.field("alleles")
@@ -119,89 +119,79 @@ def resolve_name_from_structural_variant_allele(
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("alternative_names")
 def resolve_alternative_names_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load alternative names for variant allele
     """
-    return variant_allele.get_alternative_names()
+    return structural_variant_allele.get_alternative_names()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("slice")
 def resolve_slice_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load slice for variant allele
     """
-    return variant_allele.get_slice()
+    return structural_variant_allele.get_slice()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("allele_type")
 def resolve_allele_type_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load allele type for variant allele
     """
-    return variant_allele.get_allele_type()
+    return structural_variant_allele.get_allele_type()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("phenotype_assertions")
 def resolve_phenotype_assertions_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load phenotype assertions for variant allele
     """
-    return variant_allele.get_phenotype_assertions()
+    return structural_variant_allele.get_phenotype_assertions()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("prediction_results")
 def resolve_prediction_results_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load prediction results for variant allele
     """
-    return variant_allele.get_prediction_results()
+    return structural_variant_allele.get_prediction_results()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("predicted_molecular_consequences")
 def resolve_predicted_molecular_consequences_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load predicted molecular consequences for variant allele
     """
-    return variant_allele.get_predicted_molecular_consequences()
-
-
-@STRUCTURAL_VARIANT_ALLELE_TYPE.field("prediction_results")
-def resolve_prediction_results_from_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
-) -> Dict:
-    """
-    Load prediction results for variant allele
-    """
-    return variant_allele.get_prediction_results()
+    return structural_variant_allele.get_predicted_molecular_consequences()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("population_frequencies")
-def resolve_population_frequencies_from_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+def resolve_population_frequencies_from_structural_variant_allele(
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load population frequencies for variant allele
     """
-    return variant_allele.get_population_allele_frequencies()
+    return structural_variant_allele.get_population_allele_frequencies()
 
 
-@STRUCTURAL_VARIANT_ALLELE_TYPE.field("ensembl_website_display_data")
-def resolve_ensmebl_website_display_data_from_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
-) -> Dict:
-    """
-    Load ensembl website display data for variant allele
-    """
-    return variant_allele.get_web_display_data()
+# @STRUCTURAL_VARIANT_ALLELE_TYPE.field("ensembl_website_display_data")
+# def resolve_ensembl_website_display_data_from_variant_allele(
+#     variant_allele: Dict, info: GraphQLResolveInfo
+# ) -> Dict:
+#     """
+#     Load ensembl website display data for variant allele
+#     """
+#     return variant_allele.get_web_display_data()
