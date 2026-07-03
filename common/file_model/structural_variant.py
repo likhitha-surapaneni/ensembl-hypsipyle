@@ -119,7 +119,7 @@ class StructuralVariant(BaseVariant):
         target_allele = self.alts if allele is None else allele
         return super().get_slice(target_allele)
 
-    def get_allele_type(self) -> dict:
+    def get_allele_type(self, allele: Any | None = None) -> dict:
         svtype = self.info.get("SVTYPE") if isinstance(self.info, dict) else None
 
         svtype_to_term = {
@@ -138,7 +138,7 @@ class StructuralVariant(BaseVariant):
                 return self._build_allele_type_payload(allele_type, so_term)
 
         try:
-            return super().get_allele_type(self.alts)
+            return super().get_allele_type(self.alts if allele is None else allele)
         except Exception:
             # Keep GraphQL non-null contract even when ALT/SVTYPE is malformed.
             return self._build_allele_type_payload("structural_variant", "SO:0001537")
