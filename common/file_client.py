@@ -119,7 +119,7 @@ class FileClient(BaseFileClient):
         try:
             [contig, pos, id] = self.split_variant_id(variant_id)
             pos = int(pos)
-        except Exception as e:
+        except (TypeError, ValueError) as e:
             print(
                 f"Invalid variant_id format '{variant_id}': {str(e)}. Expected format: contig:position:identifier"
             )
