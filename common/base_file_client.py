@@ -145,7 +145,7 @@ class BaseFileClient:
         genome_uuid: str,
         record_class,
     ) -> None | Variant | StructuralVariant:
-        """Read a full VCF record using bcftools when available, otherwise vcfpy."""
+        """Read a full VCF record using vcfpy."""
         try:
             return self.get_record_from_file(
                 datafile,
