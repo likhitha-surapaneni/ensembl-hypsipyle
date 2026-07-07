@@ -37,10 +37,16 @@ class StructuralVariant(BaseVariant):
         self.type = "StructuralVariant"
         self.synonyms_by_allele_id = synonyms_by_allele_id or {}
         # SVLEN may be a list or integer depending on the generator; coerce to int
-        svlen = self.info.get("SVLEN") if isinstance(self.info, dict) else None
+        if ("SVLEN" in self.info):
+            svlen = self.info.get("SVLEN") if isinstance(self.info, dict) else None
+        elif ("END" in self.info):
+            svlen = self.info.get("END") - self.position + 1 if isinstance(self.info, dict) else None
+        else:
+            svlen = None
         try:
             if isinstance(svlen, (list, tuple)) and svlen:
-                self.length = int(svlen[0])
+                ## TODO: Should SVLEN handle abolute max?
+                self.length = int(max(svlen))
             elif svlen is not None:
                 self.length = int(svlen)
             else:
@@ -134,7 +140,11 @@ class StructuralVariant(BaseVariant):
         if isinstance(svtype, str):
             normalized_svtype = svtype.upper()
             if normalized_svtype in svtype_to_term:
-                allele_type, so_term = svtype_to_term[normalized_svtype]
+                if allele == self.ref:
+                    allele_type = "biological_region"
+                    so_term = "SO:0001411"
+                else:
+                    allele_type, so_term = svtype_to_term[normalized_svtype]
                 return self._build_allele_type_payload(allele_type, so_term)
 
         try:

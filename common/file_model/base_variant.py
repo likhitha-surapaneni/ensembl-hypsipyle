@@ -118,8 +118,8 @@ class BaseVariant:
         """
         if isinstance(allele, str):
             if allele == self.ref:
-                allele_type = "reference"
-                SO_term = "SO:0000000"
+                allele_type = "biological_region"
+                SO_term = "SO:0001411"
             else:
                 allele_type, SO_term = self.set_allele_type(
                     len(allele) == 1,

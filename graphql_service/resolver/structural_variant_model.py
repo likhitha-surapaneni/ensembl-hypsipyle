@@ -12,7 +12,7 @@
    limitations under the License.
 """
 
-from typing import Dict
+from typing import Dict, Optional
 from ariadne import ObjectType
 from graphql import GraphQLResolveInfo
 
@@ -109,12 +109,12 @@ def resolve_alleles_from_structural_variant(structural_variant: Dict, info: Grap
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("name")
 def resolve_name_from_structural_variant_allele(
-    variant_allele: Dict, info: GraphQLResolveInfo
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
 ) -> Dict:
     """
     Load name for variant allele
     """
-    return variant_allele.name
+    return structural_variant_allele.get_name()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("alternative_names")
@@ -125,6 +125,27 @@ def resolve_alternative_names_from_structural_variant_allele(
     Load alternative names for variant allele
     """
     return structural_variant_allele.get_alternative_names()
+
+
+@STRUCTURAL_VARIANT_ALLELE_TYPE.field("length")
+def resolve_length_from_structural_variant_allele(
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
+) -> int:
+    """
+    Load length for variant allele
+    """
+    return int(structural_variant_allele.get_length())
+
+
+@STRUCTURAL_VARIANT_ALLELE_TYPE.field("copy_number")
+def resolve_copy_number_from_structural_variant_allele(
+    structural_variant_allele: Dict, info: GraphQLResolveInfo
+) -> Optional[int]:
+    """
+    Load copy number for variant allele
+    """
+    copy_number = structural_variant_allele.get_copy_number()
+    return int(copy_number) if copy_number is not None else None
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("slice")
