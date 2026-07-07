@@ -32,6 +32,12 @@ The file follows the following template:
 data_root = /app/data
 ```
 
+If `<data_root>` if different from this repository's `data` directory, then change `./connections.conf` to:
+```
+data_root=/data
+```
+and add `-v /path/to/data:/data` to the `container run` command below.
+
 ### Running a container for development
 
 Build the image using `./Dockerfile.dev`:
