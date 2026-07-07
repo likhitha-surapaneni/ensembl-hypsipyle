@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# This finds all the vcf files in DATA_DIR of the genome_uuid and creates a row for each individual allele id
+# with columns CHR POS ID ALLELE_INDEX ALLELE ALLELE_ID SOURCE_FILE
+# This is then piped to duckdb to produce the index tables
 set -euo pipefail
 
 VCF_DIR="${1:-.}"
