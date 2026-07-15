@@ -32,6 +32,11 @@ class StructuralVariantAllele:
             if allele_name:
                 self.name = allele_name
             else:
+                if self.allele_index == 0 and self.variant.ref is not None:
+                    self.alt_len = self.ref_len
+                else:
+                    allele_type = self.get_allele_type() 
+                    self.alt_len = 0 if allele_type["value"] == "deletion" else self.get_length()
                 self.name = f"{self.variant.chromosome}:{self.variant.position}:{self.ref_len}:{self.alt_len}"
         return self.name
     
@@ -67,10 +72,7 @@ class StructuralVariantAllele:
         if "CN" in self.variant.info:
             if self.get_copy_number():
                 return self.alt_len * self.get_copy_number()
-            else:
-                return self.alt_len
-        else:
-            return self.alt_len
+        return self.alt_len
 
     def _get_copy_number_from_info(self, allele_index: int, variant: Any) -> Optional[int]:
         if self.get_allele_type()["value"] == "biological_region":

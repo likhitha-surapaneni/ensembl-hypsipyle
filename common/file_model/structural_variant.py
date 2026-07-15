@@ -13,7 +13,7 @@
 """
 
 from typing import Any, List
-
+from vcfpy import SymbolicAllele
 from common.file_model.base_variant import BaseVariant
 from common.file_model.structural_variant_allele import StructuralVariantAllele
 
@@ -45,10 +45,9 @@ class StructuralVariant(BaseVariant):
             svlen = None
         try:
             if isinstance(svlen, (list, tuple)) and svlen:
-                ## TODO: Should SVLEN handle abolute max?
-                self.length = int(max(svlen))
+                self.length = abs(max(map(int,svlen),key=abs))
             elif svlen is not None:
-                self.length = int(svlen)
+                self.length = abs(int(svlen))
             else:
                 self.length = 0
         except Exception:
@@ -126,7 +125,8 @@ class StructuralVariant(BaseVariant):
         return super().get_slice(target_allele)
 
     def get_allele_type(self, allele: Any | None = None) -> dict:
-        svtype = self.info.get("SVTYPE") if isinstance(self.info, dict) else None
+        is_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
+        svtype = self.info.get("SVTYPE") or allele if is_symbolic_alt else None
 
         svtype_to_term = {
             "DEL": ("deletion", "SO:0000159"),
@@ -136,22 +136,40 @@ class StructuralVariant(BaseVariant):
             "CNV": ("copy_number_variation", "SO:0001019"),
             "BND": ("translocation", "SO:0000199"),
         }
-
-        if isinstance(svtype, str):
-            normalized_svtype = svtype.upper()
-            if normalized_svtype in svtype_to_term:
-                if allele == self.ref:
-                    allele_type = "biological_region"
-                    so_term = "SO:0001411"
-                else:
-                    allele_type, so_term = svtype_to_term[normalized_svtype]
-                return self._build_allele_type_payload(allele_type, so_term)
-
-        try:
-            return super().get_allele_type(self.alts if allele is None else allele)
-        except Exception:
-            # Keep GraphQL non-null contract even when ALT/SVTYPE is malformed.
-            return self._build_allele_type_payload("structural_variant", "SO:0001537")
+        if allele and is_symbolic_alt:
+            if allele == self.ref:
+                allele_type = "biological_region"
+                so_term = "SO:0001411"
+            elif isinstance(svtype, str):
+                normalized_svtype = svtype.upper()
+                if normalized_svtype in svtype_to_term:
+                        allele_type, so_term = svtype_to_term[normalized_svtype]
+            return self._build_allele_type_payload(allele_type, so_term)
+ 
+        if is_symbolic_alt :
+            alts = [alt.value if isinstance(alt, SymbolicAllele) else str(alt) for alt in self.alts]
+            if "DUP" in alts and "DEL" in alts:
+                allele_type = "copy_number_variation"
+                so_term = "SO:0001019"
+            elif "DUP" in alts:
+                allele_type = "duplication"
+                so_term = "SO:1000035"
+            elif "DEL" in alts:
+                allele_type = "deletion"
+                so_term = "SO:0000159"
+            elif "INV" in alts:
+                allele_type = "inversion"
+                so_term = "SO:1000036"
+            elif "INS" in alts:
+                allele_type = "insertion"
+                so_term = "SO:0000667"          
+            else:
+                allele_type = "structural_variant" 
+                so_term = "SO:0001537"     
+            return self._build_allele_type_payload(allele_type, so_term)
+        ## for non-symbolic alts, we can use the base class method to get the allele type
+        return super().get_allele_type(self.alts if allele is None else allele)
+    
 
     def get_length(self) -> int:
         return self.length
