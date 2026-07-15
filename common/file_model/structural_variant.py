@@ -160,6 +160,9 @@ class StructuralVariant(BaseVariant):
             elif "INV" in alts:
                 allele_type = "inversion"
                 so_term = "SO:1000036"
+            elif "CNV" in alts:
+                allele_type = "copy_number_variation"
+                so_term = "SO:0001019"
             elif "INS" in alts:
                 allele_type = "insertion"
                 so_term = "SO:0000667"          
