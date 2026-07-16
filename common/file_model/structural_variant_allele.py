@@ -7,7 +7,7 @@ from typing import Any, List, Mapping, Optional
 
 class StructuralVariantAllele:
     def __init__(self, allele_index: int, alt: str, variant: dict) -> None:
-        self.ref_len = variant.length if hasattr(variant, "length") else 0
+        
         self.variant = variant
         self.allele_index = allele_index
         self.alt = alt
@@ -16,6 +16,14 @@ class StructuralVariantAllele:
 
     def get_name(self) -> str:
         allele_name = None
+        allele_type = self.get_allele_type()
+        self.ref_len = (
+            self.variant.length
+            if hasattr(self.variant, "length")
+            and self.variant.length is not None
+            and self.variant.get_allele_type()["value"] != "insertion"
+            else 0
+        )
         if hasattr(self.variant, "info") and isinstance(self.variant.info, dict):
             raw_allele_name = self.variant.info.get("ALLELE_NAME")
             if isinstance(raw_allele_name, (list, tuple)):
@@ -25,7 +33,7 @@ class StructuralVariantAllele:
                 elif self.allele_index == 0 and self.variant.ref is not None:
                     # no ref-specific name in list, keep fallback
                     self.alt_len = self.ref_len
-                    allele_name = f"{self.variant.chromosome}:{self.variant.position}:{self.ref_len}:{self.ref_len}"
+                    allele_name = f"{self.variant.chromosome}:{self.variant.position}:{self.ref_len}:{self.alt_len}"
             elif isinstance(raw_allele_name, str):
                 allele_name = raw_allele_name
 
@@ -35,7 +43,6 @@ class StructuralVariantAllele:
                 if self.allele_index == 0 and self.variant.ref is not None:
                     self.alt_len = self.ref_len
                 else:
-                    allele_type = self.get_allele_type() 
                     self.alt_len = 0 if allele_type["value"] == "deletion" else self.get_length()
                 self.name = f"{self.variant.chromosome}:{self.variant.position}:{self.ref_len}:{self.alt_len}"
         return self.name
