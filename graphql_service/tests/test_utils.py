@@ -16,6 +16,7 @@ from string import Template
 from ariadne import graphql
 import os
 from common.file_client import FileClient
+from common.file_model.utils import minimise_protein_sequence
 from graphql_service.ariadne_app import (
     prepare_executable_schema,
     prepare_context_provider,
@@ -185,3 +186,21 @@ async def execute_query(
         f"Query execution failed for variant {variant_id}.\nQuery: {query}\nResult: {result}"
     )
     return query, success, result
+
+
+def test_minimise_protein_sequence_handles_insertions_and_indels() -> None:
+    """Minimisation should trim unchanged prefix/suffix for insertions and indels."""
+    assert minimise_protein_sequence("ABCDEF", "ABCXDEF", 1, 6, 6) == (
+        "X",
+        "X",
+        4,
+        6,
+        5,
+    )
+    assert minimise_protein_sequence("ABCDEF", "ABCDXYZEF", 1, 8, 8) == (
+        "XYZ",
+        "XYZ",
+        4,
+        8,
+        8,
+    )
