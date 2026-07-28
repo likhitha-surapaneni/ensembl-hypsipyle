@@ -1,4 +1,218 @@
 {
+"59871324-7803-4234-856e-2a2bd96d7b3c":{
+        "gnomAD_exomes": [
+            {
+                "name": "gnomADe:ALL",
+                "fields": {
+                    "af": "gnomAD_exomes_AF",
+                    "ac": "gnomAD_exomes_AC",
+                    "an": "gnomAD_exomes_AN"
+                }
+            },
+            {
+                "name": "gnomADe:afr",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_afr",
+                    "ac": "gnomAD_exomes_AC_afr",
+                    "an": "gnomAD_exomes_AN_afr"
+                }
+            },
+            {
+                "name": "gnomADe:amr",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_amr",
+                    "ac": "gnomAD_exomes_AC_amr",
+                    "an": "gnomAD_exomes_AN_amr"
+                }
+            },
+            {
+                "name": "gnomADe:asj",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_asj",
+                    "ac": "gnomAD_exomes_AC_asj",
+                    "an": "gnomAD_exomes_AN_asj"
+                }
+            },
+            {
+                "name": "gnomADe:eas",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_eas",
+                    "ac": "gnomAD_exomes_AC_eas",
+                    "an": "gnomAD_exomes_AN_eas"
+                }
+            },
+            {
+                "name": "gnomADe:fin",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_fin",
+                    "ac": "gnomAD_exomes_AC_fin",
+                    "an": "gnomAD_exomes_AN_fin"
+                }
+            },
+            {
+                "name": "gnomADe:mid",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_mid",
+                    "ac": "gnomAD_exomes_AC_mid",
+                    "an": "gnomAD_exomes_AN_mid"
+                }
+            },
+            {
+                "name": "gnomADe:nfe",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_nfe",
+                    "ac": "gnomAD_exomes_AC_nfe",
+                    "an": "gnomAD_exomes_AN_nfe"
+                }
+            },
+            {
+                "name": "gnomADe:remaining",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_remaining",
+                    "ac": "gnomAD_exomes_AC_remaining",
+                    "an": "gnomAD_exomes_AN_remaining"
+                }
+            },
+            {
+                "name": "gnomADe:sas",
+                "fields": {
+                    "af": "gnomAD_exomes_AF_sas",
+                    "ac": "gnomAD_exomes_AC_sas",
+                    "an": "gnomAD_exomes_AN_sas"
+                }
+            }
+        ],
+        "gnomAD_genomes": [
+            {
+                "name": "gnomADg:ALL",
+                "fields": {
+                    "af": "gnomAD_genomes_AF",
+                    "ac": "gnomAD_genomes_AC",
+                    "an": "gnomAD_genomes_AN"
+                }
+            },
+            {
+                "name": "gnomADg:afr",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_afr",
+                    "ac": "gnomAD_genomes_AC_afr",
+                    "an": "gnomAD_genomes_AN_afr"
+                }
+            },
+            {
+                "name": "gnomADg:ami",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_ami",
+                    "ac": "gnomAD_genomes_AC_ami",
+                    "an": "gnomAD_genomes_AN_ami"
+                }
+            },
+            {
+                "name": "gnomADg:amr",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_amr",
+                    "ac": "gnomAD_genomes_AC_amr",
+                    "an": "gnomAD_genomes_AN_amr"
+                }
+            },
+            {
+                "name": "gnomADg:asj",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_asj",
+                    "ac": "gnomAD_genomes_AC_asj",
+                    "an": "gnomAD_genomes_AN_asj"
+                }
+            },
+            {
+                "name": "gnomADg:eas",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_eas",
+                    "ac": "gnomAD_genomes_AC_eas",
+                    "an": "gnomAD_genomes_AN_eas"
+                }
+            },
+            {
+                "name": "gnomADg:fin",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_fin",
+                    "ac": "gnomAD_genomes_AC_fin",
+                    "an": "gnomAD_genomes_AN_fin"
+                }
+            },
+            {
+                "name": "gnomADg:mid",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_mid",
+                    "ac": "gnomAD_genomes_AC_mid",
+                    "an": "gnomAD_genomes_AN_mid"
+                }
+            },
+            {
+                "name": "gnomADg:nfe",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_nfe",
+                    "ac": "gnomAD_genomes_AC_nfe",
+                    "an": "gnomAD_genomes_AN_nfe"
+                }
+            },
+            {
+                "name": "gnomADg:remaining",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_remaining",
+                    "ac": "gnomAD_genomes_AC_remaining",
+                    "an": "gnomAD_genomes_AN_remaining"
+                }
+            },
+            {
+                "name": "gnomADg:sas",
+                "fields": {
+                    "af": "gnomAD_genomes_AF_sas",
+                    "ac": "gnomAD_genomes_AC_sas",
+                    "an": "gnomAD_genomes_AN_sas"
+                }
+            }
+        ],
+        "1000GENOMES:phase_3": 
+        [
+            {
+                "name": "1000GENOMES:phase_3:ALL",
+                "fields": {
+                    "af": "AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:AFR",
+                "fields": {
+                    "af": "AFR_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:AMR",
+                "fields": {
+                    "af": "AMR_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:EAS",
+                "fields": {
+                    "af": "EAS_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:EUR",
+                "fields": {
+                    "af": "EUR_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:SAS",
+                "fields": {
+                    "af": "SAS_AF"
+                }
+                
+            }
+        ]
+    },
     "2b5fb047-5992-4dfb-b2fa-1fb4e18d1abb": {
         "gnomAD_exomes": [
             {
@@ -62983,6 +63197,24 @@
                     "af": "gnomAD_genomes_AF_sas",
                     "ac": "gnomAD_genomes_AC_sas",
                     "an": "gnomAD_genomes_AN_sas"
+                }
+            }
+        ]
+    },
+    "561b3e3d-3c87-43ae-bca9-1d9eb1f32e1d": {
+        "MGP": [
+            {
+                "name": "MGP",
+                "fields": {
+                    "an": "MGP_snp_AN",
+                    "ac": "MGP_snp_AC"
+                }
+            },
+            {
+                "name": "MGP",
+                "fields": {
+                    "an": "MGP_indels_AN",
+                    "ac": "MGP_indels_AC"
                 }
             }
         ]
