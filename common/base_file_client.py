@@ -20,7 +20,11 @@ class BaseFileClient:
 
     def split_variant_id(self, variant_id: str):
         """Splits a variant identifier in the form contig:position:identifier."""
-        return variant_id.split(":")
+        variant_id_split = variant_id.split(":")
+        if len(variant_id_split) == 6:
+            identifier = ":".join(variant_id_split[2:])
+            return [variant_id_split[0],variant_id_split[1],identifier]
+        return variant_id_split
 
     def search_in_file(
         self,
