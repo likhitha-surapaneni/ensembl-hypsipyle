@@ -231,6 +231,14 @@ class BaseVariant:
                 return index
         return None
 
+    def get_csq_field_indices(self, keys, info_id: str = "CSQ") -> Mapping:
+        prediction_index_map = {}
+        for key in keys:
+            index = self.get_info_key_index(key, info_id)
+            if index is not None:
+                prediction_index_map[key.lower()] = index
+        return prediction_index_map
+
     def traverse_population_info(self) -> Mapping:
         directory = os.path.dirname(__file__)
         with open(os.path.join(directory, "populations.json")) as pop_file:

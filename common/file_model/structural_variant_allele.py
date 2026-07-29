@@ -130,7 +130,82 @@ class StructuralVariantAllele:
         return []
 
     def get_predicted_molecular_consequences(self) -> list:
-        return []
+        info = getattr(self.variant, "info", None)
+        if not isinstance(info, dict) or "CSQ" not in info or not info["CSQ"]:
+            return []
+
+        if self.allele_index == 0:
+            return []
+
+        if hasattr(self.variant, "get_csq_field_indices"):
+            prediction_index_map = self.variant.get_csq_field_indices(
+                ["allele", "consequence", "feature_type", "feature", "gene", "symbol", "biotype"]
+            )
+        else:
+            prediction_index_map = {}
+            for key in ["allele", "consequence", "feature_type", "feature", "gene", "symbol", "biotype"]:
+                index = self._get_info_key_index(key)
+                if index is not None:
+                    prediction_index_map[key] = index
+
+        if "allele" not in prediction_index_map or "consequence" not in prediction_index_map:
+            return []
+
+        consequences = []
+        for csq_record in info["CSQ"]:
+
+            csq_record_list = csq_record.split("|")
+            allele_value = csq_record_list[prediction_index_map["allele"]]
+            if allele_value is None or allele_value == ".": 
+                continue
+
+            consequence_items = []
+            for cons in csq_record_list[prediction_index_map["consequence"]].split("&"):
+                if cons and cons != ".":
+                    consequence_items.append({"value": cons})
+
+            if not consequence_items:
+                continue
+            
+            feature_type = (
+                csq_record_list[prediction_index_map["feature_type"]]
+                if "feature_type" in prediction_index_map
+                else None
+            )
+            consequences.append(
+                {
+                    "allele_name": allele_value,
+                    "stable_id": (
+                        csq_record_list[prediction_index_map["feature"]]
+                        if "feature" in prediction_index_map
+                        else None
+                    ),
+                    "feature_type": {"value": feature_type} if feature_type else None,
+                    "consequences": consequence_items,
+                    "gene_stable_id": (
+                        csq_record_list[prediction_index_map["gene"]]
+                        if "gene" in prediction_index_map
+                        else None
+                    ),
+                    "gene_symbol": (
+                        csq_record_list[prediction_index_map["symbol"]]
+                        if "symbol" in prediction_index_map
+                        else None
+                    ),
+                    "protein_stable_id": None,
+                    "transcript_biotype": (
+                        csq_record_list[prediction_index_map["biotype"]]
+                        if "biotype" in prediction_index_map
+                        else None
+                    ),
+                    "prediction_results": [],
+                    "cdna_location": None,
+                    "cds_location": None,
+                    "protein_location": None,
+                }
+            )
+
+        return consequences
 
     def get_prediction_results(self) -> list:
         return []
