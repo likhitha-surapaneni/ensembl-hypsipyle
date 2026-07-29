@@ -14,6 +14,16 @@ The API resolvers use VEP annotated VCF data to provide visualisations
 
 The API can be queried against a single endpoint specifying the payload to be returned
 
+### Population allele frequencies
+
+Population allele frequencies are loaded from VEP-annotated VCF data and mapped to the correct genome assembly through a small generation step.
+
+- Seed definitions are stored in `scripts/population/seed-files/populations.json` and `scripts/population/seed-files/population_metadata.json`.
+- The scripts in `scripts/population/fetch_population.py` and `scripts/population/fetch_population_metadata.py` read those seed files, connect to the Ensembl metadata database via `scripts/population/db.ini` and `scripts/population/utils.py`, and resolve each species/assembly production name to one or more genome UUIDs.
+- The generated mappings are written into the runtime configuration files `common/file_model/populations.json` and `common/file_model/population_metadata.json`, keyed by genome UUID.
+- At runtime, the variant model uses the current genome UUID to find the appropriate population mapping, read the relevant AF/AC/AN fields from the VCF CSQ record, and calculate per-population allele frequencies and representative values for the API response.
+
+This allows the service to serve population-frequency data for each genome independently without hard-coding genome-specific metadata in the application code.
 
 ![alt text](assets/architecture.png)
 
