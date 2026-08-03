@@ -19,7 +19,30 @@ from common.file_model.structural_variant_allele import StructuralVariantAllele
 
 
 class StructuralVariant(BaseVariant):
-    """StructuralVariant model – inherits shared behaviour from BaseVariant."""
+    """StructuralVariant model  inherits shared behaviour from BaseVariant."""
+
+    @staticmethod
+    def _normalize_spdi_name(name: str | None) -> str | None:
+        if not name:
+            return name
+
+        parts = name.split(":")
+        if len(parts) < 4:
+            return name
+
+        if parts[0] and parts[1] and parts[2] == "":
+            parts[2] = "0"
+            return ":".join(parts)
+
+        if parts[-1] == "":
+            parts[-1] = "0"
+            return ":".join(parts)
+
+        if len(parts) >= 5 and parts[-2] == "":
+            parts[-2] = "0"
+            return ":".join(parts)
+
+        return name
 
     def __init__(
         self,
@@ -36,22 +59,41 @@ class StructuralVariant(BaseVariant):
         super().__init__(record, header, genome_uuid)
         self.type = "StructuralVariant"
         self.synonyms_by_allele_id = synonyms_by_allele_id or {}
-        # SVLEN may be a list or integer depending on the generator; coerce to int
-        if ("SVLEN" in self.info):
+        self.length = self._compute_length()
+
+    def _compute_length(self) -> int:
+        if not self.alts:
+            return 0
+
+        has_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
+        if not has_symbolic_alt:
+            if self.ref is not None:
+                ref_length = len(self.ref)
+                if ref_length > 0:
+                    return ref_length
+
+            alt_lengths = []
+            for alt in self.alts:
+                alt_value = alt.value if hasattr(alt, "value") else str(alt)
+                alt_lengths.append(len(alt_value))
+            if alt_lengths:
+                return max(alt_lengths)
+
+        svlen = None
+        if "SVLEN" in self.info:
             svlen = self.info.get("SVLEN") if isinstance(self.info, dict) else None
-        elif ("END" in self.info):
+        elif "END" in self.info:
             svlen = self.info.get("END") - self.position + 1 if isinstance(self.info, dict) else None
-        else:
-            svlen = None
+
         try:
             if isinstance(svlen, (list, tuple)) and svlen:
-                self.length = abs(max(map(int,svlen),key=abs))
-            elif svlen is not None:
-                self.length = abs(int(svlen))
-            else:
-                self.length = 0
+                return abs(max(map(int, svlen), key=abs))
+            if svlen is not None:
+                return abs(int(svlen))
         except Exception:
-            self.length = 0
+            pass
+
+        return 0
 
     def get_primary_source(self) -> dict:
         return super().get_primary_source()

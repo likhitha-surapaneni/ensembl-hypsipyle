@@ -19,7 +19,7 @@ class BaseVariant:
     def __init__(self, record: Any, header: Any, genome_uuid: str) -> None:
         # core attributes present in both VCF record types
         self.genome_uuid = genome_uuid
-        self.name = record.ID[0]
+        self.name = self._normalize_variant_name(record.ID[0])
         self.record = record
         self.header = header
         self.chromosome = record.CHROM
@@ -40,6 +40,16 @@ class BaseVariant:
     # ------------------------------------------------------------------
     # shared helpers
     # ------------------------------------------------------------------
+
+    def _normalize_variant_name(self, name: str | None) -> str | None:
+        if not name:
+            return name
+
+        if not hasattr(self, "_normalize_spdi_name"):
+            return name
+        print("Entered")
+        print(self._normalize_spdi_name(name))
+        return self._normalize_spdi_name(name)
 
     def parse_source_from_header(self) -> Mapping:
         """Parse and cache source metadata from the VCF header."""
