@@ -40,5 +40,47 @@
                 
             }
         ]
+   },
+   "3704ceb1-948d-11ec-a39d-005056b38ce3": {
+   "1000GENOMES:phase_3": 
+        [
+            {
+                "name": "1000GENOMES:phase_3:ALL",
+                "fields": {
+                    "af": "AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:AFR",
+                "fields": {
+                    "af": "AFR_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:AMR",
+                "fields": {
+                    "af": "AMR_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:EAS",
+                "fields": {
+                    "af": "EAS_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:EUR",
+                "fields": {
+                    "af": "EUR_AF"
+                }
+            },
+            {
+                "name": "1000GENOMES:phase_3:SAS",
+                "fields": {
+                    "af": "SAS_AF"
+                }
+                
+            }
+        ]
    }
 }
