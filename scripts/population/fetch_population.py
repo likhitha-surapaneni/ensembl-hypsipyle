@@ -13,8 +13,20 @@
 """
 
 import json
+from copy import deepcopy
+from typing import Optional
 from utils import parse_ini, get_genome_uuids
 
+
+with open("seed-files/1kg.json", "r") as file:
+    _ONE_KG_DATA = json.load(file)
+
+
+def add_1kg_data(population_map_by_id: dict, genome_uuid: str) -> Optional[dict]:
+    """Merge 1000 Genomes data for the requested genome UUID into the map."""
+    population_map_by_id.update(_ONE_KG_DATA.get(genome_uuid, {}))
+    return population_map_by_id
+    
 # Open and read the JSON file
 with open("seed-files/populations.json", "r") as file:
     data = json.load(file)
@@ -73,7 +85,8 @@ for species_name, species in data.items():
 
         genome_uuids = get_genome_uuids(server, species_name)
         for genome_uuid in genome_uuids:
-            population_map[genome_uuid] = population_frequencies
+            population_map[genome_uuid] = deepcopy(population_frequencies)
+            population_map[genome_uuid] = add_1kg_data(population_map[genome_uuid], genome_uuid)
 
 # Write population-data.json
 with open("test-data.json", "w") as file:

@@ -42,7 +42,7 @@ def parse_ini(ini_file: str, section: str = "database") -> dict:
     return {"host": host, "port": port, "user": user, "database": database}
 
 
-def get_genome_uuids(server: dict, production_name: str) -> str:
+def get_genome_uuids(server: dict, production_name: str) -> list[str]:
     """
     Get genome uuids form the database
 
@@ -57,14 +57,21 @@ def get_genome_uuids(server: dict, production_name: str) -> str:
     if production_name == "homo_sapiens_gca\\d{9}v\\d{1}":
         query = 'SELECT genome_uuid FROM genome WHERE PRODUCTION_NAME LIKE "homo_sapiens_gca%";'
     else:
-        query = f'SELECT genome_uuid FROM genome WHERE PRODUCTION_NAME LIKE "{production_name}" ORDER BY GENEBUILD_DATE DESC LIMIT 1;'
+        query = (
+            f'SELECT genome_uuid FROM genome WHERE PRODUCTION_NAME LIKE '
+            f'"{production_name}" ORDER BY GENEBUILD_DATE DESC LIMIT 1;'
+        )
     process = subprocess.run(
         [
             "mysql",
-            "--host",server["host"],
-            "--port",server["port"],
-            "--user",server["user"],
-            "--database",server["database"],
+            "--host",
+            server["host"],
+            "--port",
+            server["port"],
+            "--user",
+            server["user"],
+            "--database",
+            server["database"],
             "-N",
             "--execute",
             query,
