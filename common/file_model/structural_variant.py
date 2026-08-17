@@ -168,7 +168,9 @@ class StructuralVariant(BaseVariant):
 
     def get_allele_type(self, allele: Any | None = None) -> dict:
         is_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
-        svtype = self.info.get("SVTYPE") or allele if is_symbolic_alt else None
+        
+        allele_str= allele[0].value if is_symbolic_alt else str(allele)
+        svtype = self.info.get("SVTYPE") or allele_str if is_symbolic_alt else None
 
         svtype_to_term = {
             "DEL": ("deletion", "SO:0000159"),
@@ -185,7 +187,7 @@ class StructuralVariant(BaseVariant):
             elif isinstance(svtype, str):
                 normalized_svtype = svtype.upper()
                 if normalized_svtype in svtype_to_term:
-                        allele_type, so_term = svtype_to_term[normalized_svtype]
+                    allele_type, so_term = svtype_to_term[normalized_svtype]
             return self._build_allele_type_payload(allele_type, so_term)
  
         if is_symbolic_alt :
