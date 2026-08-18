@@ -95,9 +95,6 @@ class StructuralVariant(BaseVariant):
 
         return 0
 
-    def get_primary_source(self) -> dict:
-        return super().get_primary_source()
-
     def set_synonyms_by_allele_id(self, synonyms_by_allele_id: dict | None) -> None:
         self.synonyms_by_allele_id = synonyms_by_allele_id or {}
 

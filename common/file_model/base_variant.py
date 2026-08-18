@@ -11,6 +11,7 @@ from typing import Any, Mapping
 import re
 import os
 import json
+from common.file_model.utils import decode_population_name
 
 
 class BaseVariant:
@@ -176,21 +177,32 @@ class BaseVariant:
         }
 
     def get_most_severe_consequence(self) -> Mapping:
-        # Applies to CSQ format in info
-        consequence_index = self.get_info_key_index("Consequence")
+        """Return the most severe known consequence from the VEP CSQ data."""
         consequence_map = {}
-        directory = os.path.dirname(__file__)
-        with open(
-            os.path.join(directory, "variation_consequence_rank.json")
-        ) as rank_file:
-            consequence_rank = json.load(rank_file)
-        for csq_record in self.info.get("CSQ", []):
-            csq_record_list = csq_record.split("|")
-            for cons in csq_record_list[consequence_index].split("&"):
-                # minimal implementation; callers of this base method must
-                # handle empty indexes
-                rank = consequence_rank.get(cons, 0)
-                consequence_map.setdefault(rank, cons)
+        csq_records = self.info.get("CSQ", [])
+        if csq_records:
+            consequence_index = self.get_info_key_index("Consequence")
+            if consequence_index is not None:
+                directory = os.path.dirname(__file__)
+                with open(
+                    os.path.join(directory, "variation_consequence_rank.json")
+                ) as rank_file:
+                    consequence_rank = json.load(rank_file)
+
+                for csq_record in csq_records:
+                    csq_record_list = csq_record.split("|")
+                    if consequence_index >= len(csq_record_list):
+                        continue
+
+                    for consequence in csq_record_list[consequence_index].split("&"):
+                        rank = consequence_rank.get(consequence)
+                        if rank is None:
+                            continue
+                        try:
+                            consequence_map[int(rank)] = consequence
+                        except (TypeError, ValueError):
+                            continue
+
         return {
             "result": consequence_map[min(consequence_map.keys())]
             if consequence_map
@@ -202,36 +214,67 @@ class BaseVariant:
         }
 
     def get_gerp_score(self) -> Mapping:
-        csq = self.info.get("CSQ", [])
-        if not csq:
+        """Return the first valid GERP conservation score from VEP CSQ data."""
+        csq_records = self.info.get("CSQ", [])
+        if not csq_records:
             return {}
-        csq_record_list = csq[0].split("|")
-        if self.get_info_key_index("Conservation") is not None:
-            gerp_index = self.get_info_key_index("Conservation")
+
+        gerp_index = self.get_info_key_index("Conservation")
+        if gerp_index is None:
+            return {}
+
+        for csq_record in csq_records:
+            csq_record_list = csq_record.split("|")
+            if gerp_index >= len(csq_record_list):
+                continue
+
+            raw_score = csq_record_list[gerp_index].strip()
+            if not raw_score or raw_score == ".":
+                continue
+
+            try:
+                score = float(raw_score)
+            except (TypeError, ValueError):
+                continue
+
             return {
-                "result": csq_record_list[gerp_index],
+                "score": score,
                 "analysis_method": {
-                    "tool": "Ensembl VEP",
-                    "qualifier": {"result_type": "gerp score", "modes": []},
+                    "tool": "GERP",
+                    "qualifier": {"result_type": "GERP score", "modes": []},
                 },
             }
+
         return {}
 
     def get_ancestral_allele(self) -> Mapping:
+        """Retrieves the ancestral allele from the variant's CSQ record.
+
+        Returns:
+            Mapping: The ancestral allele prediction, or an empty mapping when
+            it is not available.
+        """
         csq = self.info.get("CSQ", [])
         if not csq:
             return {}
+
+        aa_index = self.get_info_key_index("AA")
+        if aa_index is None:
+            return {}
+
         csq_record_list = csq[0].split("|")
-        if self.get_info_key_index("AA") is not None:
-            aa_index = self.get_info_key_index("AA")
-            return {
-                "result": csq_record_list[aa_index],
-                "analysis_method": {
-                    "tool": "Ensembl VEP",
-                    "qualifier": {"result_type": "ancestral allele", "modes": []},
-                },
-            }
-        return {}
+        ancestral_allele = csq_record_list[aa_index]
+        if not ancestral_allele or ancestral_allele == ".":
+            return {}
+
+        return {
+            "result": ancestral_allele,
+            "analysis_method": {
+                "tool": "AncestralAllele",
+                "qualifier": {"result_type": "Ancestral Allele", "modes": []},
+                "version": "110",  # self.vep_version
+            },
+        }
 
     def get_info_key_index(self, key: str, info_id: str = "CSQ") -> int:
         info_field = self.header.get_info_field_info(info_id).description
@@ -250,27 +293,171 @@ class BaseVariant:
         return prediction_index_map
 
     def traverse_population_info(self) -> Mapping:
-        directory = os.path.dirname(__file__)
-        with open(os.path.join(directory, "populations.json")) as pop_file:
-            json.load(pop_file)
+        """Return VEP population frequencies keyed by allele and population."""
+        csq_records = self.info.get("CSQ", [])
+        if not csq_records:
+            return {}
+
+        pop_mapping = self.parse_population_file()
         population_frequency_map = {}
-        for csq_record in self.info.get("CSQ", []):
-            csq_record.split("|")
-            # simplified version; actual implementation omitted for brevity
-            pass
+        allele_index = self.get_info_key_index("Allele")
+        if allele_index is None:
+            return population_frequency_map
+
+        for csq_record in csq_records:
+            csq_record_list = csq_record.split("|")
+            if allele_index >= len(csq_record_list):
+                continue
+
+            allele = csq_record_list[allele_index]
+            if allele is None or allele in population_frequency_map:
+                continue
+
+            population_frequency_map[allele] = {}
+            for pop in pop_mapping.values():
+                for sub_pop in pop:
+                    if sub_pop["name"] in population_frequency_map[allele]:
+                        continue
+
+                    allele_count = allele_number = allele_frequency = None
+                    for freq_key, freq_val in sub_pop["fields"].items():
+                        col_index = self.get_info_key_index(freq_val)
+                        if (
+                            col_index is not None
+                            and col_index < len(csq_record_list)
+                            and csq_record_list[col_index] is not None
+                        ):
+                            value = csq_record_list[col_index].split("&")[0] or None
+                            if freq_key == "af":
+                                allele_frequency = value
+                            elif freq_key == "an":
+                                allele_number = value
+                            elif freq_key == "ac":
+                                allele_count = value
+                            else:
+                                raise Exception("Frequency metric is not recognised")
+
+                    if allele_frequency is None:
+                        try:
+                            allele_frequency = int(allele_count) / int(allele_number)
+                        except Exception:
+                            print(
+                                "Cannot calculate AF using expression - "
+                                f"{allele_count}/{allele_number}"
+                            )
+
+                    if allele_frequency is not None:
+                        population_frequency_map[allele][sub_pop["name"]] = {
+                            "population_name": decode_population_name(sub_pop["name"]),
+                            "allele_frequency": float(allele_frequency),
+                            "allele_count": allele_count,
+                            "allele_number": allele_number,
+                            "is_minor_allele": False,
+                            "is_hpmaf": False,
+                        }
+
         return population_frequency_map
 
     def parse_population_file(self) -> dict:
         directory = os.path.dirname(__file__)
-        pop_mapping = {}
         with open(os.path.join(directory, "populations.json")) as pop_file:
-            pop_mapping = json.load(pop_file)
-        return pop_mapping
+            population_mappings = json.load(pop_file)
+        return population_mappings.get(self.genome_uuid, {})
+
+    def get_population_reference_allele(self) -> str:
+        """Return the allele key used for reference-frequency calculations."""
+        return self.ref
 
     def set_frequency_flags(self) -> Mapping:
-        self.parse_population_file()
+        """Apply minor-allele and HPMAF flags to population frequencies."""
+        pop_mapping = self.parse_population_file()
+        pop_names = []
+        for pop in pop_mapping.values():
+            pop_names.extend([sub_pop["name"] for sub_pop in pop])
+
+        hpmaf = []
         pop_frequency_map = self.traverse_population_info()
-        # stubbed implementation; original logic unchanged but safe here
+        if not pop_frequency_map:
+            return pop_frequency_map
+
+        pop_frequency_map_transpose = {
+            pop_name: {
+                pop_allele: pop_frequency_map[pop_allele][pop_name]
+                for pop_allele in pop_frequency_map
+                if pop_name in pop_frequency_map[pop_allele]
+            }
+            for pop_name in pop_names
+        }
+
+        for pop_name in pop_frequency_map_transpose:
+            by_population = []
+            for pop_allele, pop_allele_freq in pop_frequency_map_transpose[
+                pop_name
+            ].items():
+                by_population.append(
+                    [float(pop_allele_freq["allele_frequency"]), pop_allele, pop_name]
+                )
+            if not by_population:
+                continue
+
+            reference_allele = self.get_population_reference_allele()
+            reference_frequency = 1 - float(sum(list(zip(*by_population))[0]))
+            if 0 <= reference_frequency <= 1:
+                population_frequency_ref = {
+                    "population_name": pop_name,
+                    "allele_frequency": reference_frequency,
+                    "allele_count": None,
+                    "allele_number": None,
+                    "is_minor_allele": False,
+                    "is_hpmaf": False,
+                }
+                if reference_allele not in pop_frequency_map:
+                    pop_frequency_map[reference_allele] = {}
+                pop_frequency_map[reference_allele][
+                    pop_name
+                ] = population_frequency_ref
+                by_population.append(
+                    [reference_frequency, reference_allele, pop_name]
+                )
+
+            by_population_sorted = sorted(by_population, key=lambda item: item[0])
+            if len(by_population_sorted) >= 2:
+                highest_frequency = by_population_sorted[-1][0]
+                maf_frequency = None
+                for pop in reversed(by_population_sorted[:-1]):
+                    if pop[0] == highest_frequency:
+                        continue
+                    if pop[0] < highest_frequency and not maf_frequency:
+                        maf_frequency, maf_allele, maf_population = pop
+                        pop_frequency_map[maf_allele][maf_population][
+                            "is_minor_allele"
+                        ] = True
+                        hpmaf.append([maf_frequency, maf_allele, maf_population])
+                    elif (
+                        maf_frequency
+                        and pop[0] == maf_frequency
+                        and maf_allele != reference_allele
+                    ):
+                        pop_frequency_map[maf_allele][maf_population][
+                            "is_minor_allele"
+                        ] = True
+                        hpmaf.append([maf_frequency, maf_allele, maf_population])
+                    elif maf_frequency and pop[0] < maf_frequency:
+                        break
+
+        if hpmaf:
+            hpmaf_sorted = sorted(hpmaf, key=lambda item: item[0])
+            hpmaf_frequency, hpmaf_allele, hpmaf_population = hpmaf_sorted[-1]
+            pop_frequency_map[hpmaf_allele][hpmaf_population]["is_hpmaf"] = True
+            for hpmaf_pop in reversed(hpmaf_sorted[:-1]):
+                if hpmaf_pop[0] == hpmaf_frequency:
+                    hpmaf_frequency, hpmaf_allele, hpmaf_population = hpmaf_pop
+                    pop_frequency_map[hpmaf_allele][hpmaf_population][
+                        "is_hpmaf"
+                    ] = True
+                elif hpmaf_pop[0] < hpmaf_frequency:
+                    break
+
         return pop_frequency_map
 
     def get_web_display_data(self) -> Mapping:
