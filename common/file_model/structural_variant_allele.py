@@ -121,7 +121,8 @@ class StructuralVariantAllele:
         return self.copy_number
 
     def get_alternative_names(self) -> list:
-        return self.variant.get_alternative_names(self.name)
+        name = self.get_name()
+        return self.variant.get_alternative_names(name)
 
     def get_slice(self) -> Mapping:
         return self.variant.get_slice(self.alt)

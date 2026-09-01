@@ -164,11 +164,8 @@ class StructuralVariant(BaseVariant):
         return super().get_slice(target_allele)
 
     def get_allele_type(self, allele: Any | None = None) -> dict:
-        is_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
+        is_var_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
         
-        allele_str= allele[0].value if is_symbolic_alt else str(allele)
-        svtype = self.info.get("SVTYPE") or allele_str if is_symbolic_alt else None
-
         svtype_to_term = {
             "DEL": ("deletion", "SO:0000159"),
             "INS": ("insertion", "SO:0000667"),
@@ -177,17 +174,21 @@ class StructuralVariant(BaseVariant):
             "CNV": ("copy_number_variation", "SO:0001019"),
             "BND": ("translocation", "SO:0000199"),
         }
-        if allele and is_symbolic_alt:
-            if allele == self.ref:
-                allele_type = "biological_region"
-                so_term = "SO:0001411"
-            elif isinstance(svtype, str):
-                normalized_svtype = svtype.upper()
-                if normalized_svtype in svtype_to_term:
-                    allele_type, so_term = svtype_to_term[normalized_svtype]
-            return self._build_allele_type_payload(allele_type, so_term)
+        if allele:
+            is_symbolic_alt = isinstance(allele, SymbolicAllele) 
+            allele_str= allele.value if is_symbolic_alt else str(allele)
+            svtype = self.info.get("SVTYPE") or allele_str if (is_symbolic_alt  or allele in svtype_to_term.keys()) else None
+            if svtype:
+                if allele == self.ref:
+                    allele_type = "biological_region"
+                    so_term = "SO:0001411"
+                elif isinstance(svtype, str) :
+                    normalized_svtype = svtype.upper()
+                    if normalized_svtype in svtype_to_term:
+                        allele_type, so_term = svtype_to_term[normalized_svtype]
+                return self._build_allele_type_payload(allele_type, so_term)
  
-        if is_symbolic_alt :
+        if is_var_symbolic_alt :
             alts = [alt.value if isinstance(alt, SymbolicAllele) else str(alt) for alt in self.alts]
             if "DUP" in alts and "DEL" in alts:
                 allele_type = "copy_number_variation"
