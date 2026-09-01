@@ -48,8 +48,6 @@ class BaseVariant:
 
         if not hasattr(self, "_normalize_spdi_name"):
             return name
-        print("Entered")
-        print(self._normalize_spdi_name(name))
         return self._normalize_spdi_name(name)
 
     def parse_source_from_header(self) -> Mapping:
