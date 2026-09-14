@@ -53,8 +53,8 @@ class StructuralVariant(BaseVariant):
     ) -> None:
         """Initialise SV-specific attributes and delegate shared setup.
 
-        The `length` attribute is derived from the VCF INFO `SVLEN` where
-        available; otherwise zero.
+        Sequence allele lengths use minimised REF/ALT sequences. Symbolic alleles
+        use VCF INFO `SVLEN` or `END`, falling back to zero.
         """
         super().__init__(record, header, genome_uuid)
         self.type = "StructuralVariant"
@@ -67,17 +67,32 @@ class StructuralVariant(BaseVariant):
 
         has_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
         if not has_symbolic_alt:
-            if self.ref is not None:
-                ref_length = len(self.ref)
-                if ref_length > 0:
-                    return ref_length
-
-            alt_lengths = []
+            lengths = []
             for alt in self.alts:
                 alt_value = alt.value if hasattr(alt, "value") else str(alt)
-                alt_lengths.append(len(alt_value))
-            if alt_lengths:
-                return max(alt_lengths)
+                ref_value = self.ref or ""
+                # Remove shared bases, including the VCF padding base.
+                start = 0
+                while (
+                    start < min(len(ref_value), len(alt_value))
+                    and ref_value[start] == alt_value[start]
+                ):
+                    start += 1
+                ref_end, alt_end = len(ref_value), len(alt_value)
+                while (
+                    ref_end > start
+                    and alt_end > start
+                    and ref_value[ref_end - 1] == alt_value[alt_end - 1]
+                ):
+                    ref_end -= 1
+                    alt_end -= 1
+                ref_length = ref_end - start
+                alt_length = alt_end - start
+                # Insertions and indels use the effective sequence added;
+                # deletions use the reference sequence removed. Equal-length
+                # substitutions (including SNPs) have the same length either way.
+                lengths.append(alt_length if alt_length else ref_length)
+            return max(lengths)
 
         svlen = None
         if "SVLEN" in self.info:
@@ -160,8 +175,23 @@ class StructuralVariant(BaseVariant):
         }
 
     def get_slice(self, allele=None) -> dict:
-        target_allele = self.alts if allele is None else allele
-        return super().get_slice(target_allele)
+        start = self.position
+        length = self.length
+        if self.get_allele_type(allele)["value"] == "insertion":
+            length = 0
+            end = start
+        else:
+            end = start + length - 1
+        return {
+                    "location": {"start": start, "end": end, "length": length},
+                    "region": {
+                        "name": self.chromosome,
+                        "code": "chromosome",
+                        "topology": "linear",
+                        "so_term": "SO:0001217",
+                    },
+                    "strand": {"code": "forward", "value": 1},
+                }
 
     def get_allele_type(self, allele: Any | None = None) -> dict:
         is_var_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)

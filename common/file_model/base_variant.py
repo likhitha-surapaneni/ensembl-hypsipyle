@@ -156,7 +156,7 @@ class BaseVariant:
     def get_slice(self, allele) -> Mapping:
         """Return a location slice for the variant given an allele value."""
         start = self.position
-        length = len(self.ref) if self.ref is not None else 0
+        length = len(allele) if allele is not None else 0
         end = start + length - 1
         if allele != self.ref:
             allele_type = self.get_allele_type(allele)
