@@ -12,7 +12,7 @@
    limitations under the License.
 """
 
-from typing import Any, Mapping, List, Union
+from typing import Any, Mapping, List
 import re
 from common.file_model.base_variant import BaseVariant
 from common.file_model.variant_allele import VariantAllele
