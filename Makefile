@@ -5,7 +5,7 @@ CONTAINER_NAME ?= hypsipyle-dev
 PWD := $(shell pwd)
 PORTS := --publish 0.0.0.0:80:80/tcp --publish 0.0.0.0:8000:8000/tcp
 
-.PHONY: help context build rebuild run run-detach stop logs shell rm
+.PHONY: help context build rebuild run run-detach stop logs shell rm reset-colima
 
 help:
 	@echo "Available targets:"
@@ -17,6 +17,7 @@ help:
 	@echo "  make stop           # Stop and remove container"
 	@echo "  make logs           # Follow container logs"
 	@echo "  make shell          # Exec a shell in running container"
+	@echo "  make reset-colima   # Delete and recreate the Colima profile"
 
 context:
 	docker context use $(DOCKER_CONTEXT)
@@ -42,6 +43,10 @@ logs:
 
 shell:
 	docker exec -it $(CONTAINER_NAME) /bin/bash
+
+reset-colima:
+	colima delete --profile hypsipyle || true
+	colima start --profile=hypsipyle
 
 rm:
 	docker container rm -f $(CONTAINER_NAME) || true
