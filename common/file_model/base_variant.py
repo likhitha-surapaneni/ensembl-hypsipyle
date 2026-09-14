@@ -153,27 +153,6 @@ class BaseVariant:
             },
         }
 
-    def get_slice(self, allele) -> Mapping:
-        """Return a location slice for the variant given an allele value."""
-        start = self.position
-        length = len(allele) if allele is not None else 0
-        end = start + length - 1
-        if allele != self.ref:
-            allele_type = self.get_allele_type(allele)
-            if allele_type["accession_id"] == "insertion":
-                end = start
-                length = 0
-        return {
-            "location": {"start": start, "end": end, "length": length},
-            "region": {
-                "name": self.chromosome,
-                "code": "chromosome",
-                "topology": "linear",
-                "so_term": "SO:0001217",
-            },
-            "strand": {"code": "forward", "value": 1},
-        }
-
     def get_most_severe_consequence(self) -> Mapping:
         """Return the most severe known consequence from the VEP CSQ data."""
         consequence_map = {}
