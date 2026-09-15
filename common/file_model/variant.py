@@ -19,22 +19,6 @@ from common.file_model.variant_allele import VariantAllele
 from common.file_model.utils import minimise_allele
 
 
-def reduce_allele_length(allele_list: List):
-    """Returns the maximum length of allele values in the list.
-
-    Args:
-        allele_list (List): A list of allele objects with a 'value' attribute.
-
-    Returns:
-        int: The maximum length of allele.value, or -1 if no allele has a value longer than -1.
-    """
-    allele_length = -1
-    for allele in allele_list:
-        if len(allele.value) > allele_length:
-            allele_length = len(allele.value)
-    return allele_length
-
-
 class Variant(BaseVariant):
     def __init__(self, record: Any, header: Any, genome_uuid: str) -> None:
         """Initialise a Variant and delegate shared setup to BaseVariant.
