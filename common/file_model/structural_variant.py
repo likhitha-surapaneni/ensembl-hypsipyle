@@ -205,7 +205,7 @@ class StructuralVariant(BaseVariant):
             "BND": ("translocation", "SO:0000199"),
         }
         if allele:
-            is_symbolic_alt = isinstance(allele, SymbolicAllele) 
+            is_symbolic_alt = isinstance(allele, SymbolicAllele)
             allele_str= allele.value if is_symbolic_alt else str(allele)
             svtype = self.info.get("SVTYPE") or allele_str if (is_symbolic_alt  or allele_str in svtype_to_term.keys()) else None
             if svtype:
