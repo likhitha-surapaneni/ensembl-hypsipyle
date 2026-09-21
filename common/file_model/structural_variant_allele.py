@@ -157,7 +157,7 @@ class StructuralVariantAllele:
 
             csq_record_list = csq_record.split("|")
             allele_value = csq_record_list[prediction_index_map["allele"]]
-            if allele_value is None or allele_value == ".": 
+            if allele_value is None or allele_value == ".":
                 continue
 
             consequence_items = []
