@@ -167,7 +167,6 @@ class StructuralVariantAllele:
 
             if not consequence_items:
                 continue
-            
             feature_type = (
                 csq_record_list[prediction_index_map["feature_type"]]
                 if "feature_type" in prediction_index_map
