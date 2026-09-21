@@ -237,7 +237,7 @@ class StructuralVariant(BaseVariant):
                 so_term = "SO:0001019"
             elif "INS" in alts:
                 allele_type = "insertion"
-                so_term = "SO:0000667"          
+                so_term = "SO:0000667"
             else:
                 allele_type = "structural_variant" 
                 so_term = "SO:0001537"     
