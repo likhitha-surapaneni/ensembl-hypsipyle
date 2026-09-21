@@ -243,7 +243,6 @@ class StructuralVariant(BaseVariant):
             return self._build_allele_type_payload(allele_type, so_term)
         ## for non-symbolic alts, we can use the base class method to get the allele type
         return super().get_allele_type(self.alts if allele is None else allele)
-    
 
     def get_length(self) -> int:
         return self.length
