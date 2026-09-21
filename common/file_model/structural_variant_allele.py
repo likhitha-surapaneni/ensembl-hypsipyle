@@ -7,7 +7,6 @@ from typing import Any, List, Mapping, Optional
 
 class StructuralVariantAllele:
     def __init__(self, allele_index: int, alt: str, variant: dict) -> None:
-        
         self.variant = variant
         self.allele_index = allele_index
         self.alt = alt
