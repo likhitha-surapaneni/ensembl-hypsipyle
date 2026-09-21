@@ -238,8 +238,8 @@ class StructuralVariant(BaseVariant):
                 allele_type = "insertion"
                 so_term = "SO:0000667"
             else:
-                allele_type = "structural_variant" 
-                so_term = "SO:0001537"     
+                allele_type = "structural_variant"
+                so_term = "SO:0001537"
             return self._build_allele_type_payload(allele_type, so_term)
         ## for non-symbolic alts, we can use the base class method to get the allele type
         return super().get_allele_type(self.alts if allele is None else allele)
