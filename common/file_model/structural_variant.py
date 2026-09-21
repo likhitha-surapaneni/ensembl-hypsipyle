@@ -195,7 +195,6 @@ class StructuralVariant(BaseVariant):
 
     def get_allele_type(self, allele: Any | None = None) -> dict:
         is_var_symbolic_alt = any(isinstance(alt, SymbolicAllele) for alt in self.alts)
-        
         svtype_to_term = {
             "DEL": ("deletion", "SO:0000159"),
             "INS": ("insertion", "SO:0000667"),
