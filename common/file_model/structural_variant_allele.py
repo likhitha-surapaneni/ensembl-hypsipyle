@@ -46,8 +46,8 @@ class StructuralVariantAllele:
                     self.alt_len = 0 if allele_type["value"] == "deletion" else self.get_length()
                 self.name = f"{self.variant.chromosome}:{self.variant.position}:{self.ref_len}:{self.alt_len}"
         return self.name
-    
-    
+
+
     def get_allele_type(self) -> Mapping:
         return self.variant.get_allele_type(self.alt)
 
