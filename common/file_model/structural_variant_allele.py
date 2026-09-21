@@ -63,7 +63,7 @@ class StructuralVariantAllele:
             else 0
         )
         if hasattr(self.variant, "info") and isinstance(self.variant.info, dict) and is_symbolic_alt:
-            raw_svlen = self.variant.info.get("SVLEN") or self.variant.info.get("END") - self.variant.position 
+            raw_svlen = self.variant.info.get("SVLEN") or self.variant.info.get("END") - self.variant.position
             svlen_value = None
             if isinstance(raw_svlen, (list, tuple)):
                 if self.allele_index > 0 and self.allele_index - 1 < len(raw_svlen):
