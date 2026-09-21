@@ -19,7 +19,7 @@ from common.file_model.structural_variant_allele import StructuralVariantAllele
 
 
 class StructuralVariant(BaseVariant):
-    """StructuralVariant model  inherits shared behaviour from BaseVariant."""
+    """StructuralVariant model inherits shared behaviour from BaseVariant."""
 
     @staticmethod
     def _normalize_spdi_name(name: str | None) -> str | None:
