@@ -104,7 +104,7 @@ def resolve_alleles_from_structural_variant(structural_variant: Dict, info: Grap
     """
     Load alleles for variant
     """
-    return structural_variant.get_alleles()    
+    return structural_variant.get_alleles()
 
 
 @STRUCTURAL_VARIANT_ALLELE_TYPE.field("name")
